@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Calibre Phishing Detector</title>
+    <style>
+        body {
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #ff8c00;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        textarea::placeholder {
+            color: #999;
+        }
+
+        button {
+            background-color: #ff8c00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e67e00;
+        }
+
+        .result {
+            font-size: 20px;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .result.phishing {
+            background-color: #ff4d4d;
+        }
+
+        .result.legit {
+            background-color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>X-Calibre</h1>
+        <form id="phishingForm">
+            <textarea name="content" id="content" placeholder="Paste email, SMS, or URL here..."></textarea><br>
+            <button type="submit">Analyze</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+       document.getElementById('phishingForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const content = document.getElementById('content').value;
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `url=${encodeURIComponent(content)}`
+            });
+
+            const data = await response.json();
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';  // Reset classes
+            resultDiv.textContent = `Result: ${data.prediction === 1 ? 'Phishing' : 'Legit'}, Confidence: ${data.confidence || 'N/A'}`;
+
+            if (data.prediction === 1) {
+                resultDiv.classList.add(' phishing website');
+            } else {
+                resultDiv.classList.add('legit');
+            }
+        });    </script>
+
+</body>
+</html>
